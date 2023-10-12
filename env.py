@@ -237,12 +237,12 @@ class env(gym.env):
         super.__init__(self)
         self.microgrid = microgrid
         self.action_space = {
-            "adjustingstatus" = [0,0,0],
-            "solar" = [0,0,0],
-            "wind" = [0,0,0],
-            "generator" = [0,0,0],
-            "purchased" = [0,0],
-            "discharged" = 0
+            "adjustingstatus": [0,0,0],
+            "solar": [0,0,0],
+            "wind": [0,0,0],
+            "generator": [0,0,0],
+            "purchased": [0,0],
+            "discharged": 0
         }
         self.observation_space = [0,0,0,0]
         self._curr_step = 0
@@ -251,12 +251,12 @@ class env(gym.env):
     def reset(self):
         self.microgrid = Microgrid()
         self.action_space = {
-            "adjustingstatus" = [0,0,0],
-            "solar" = [0,0,0],
-            "wind" = [0,0,0],
-            "generator" = [0,0,0],
-            "purchased" = [0,0],
-            "discharged" = 0
+            "adjustingstatus": [0,0,0],
+            "solar": [0,0,0],
+            "wind": [0,0,0],
+            "generator": [0,0,0],
+            "purchased": [0,0],
+            "discharged": 0
         }
         self.observation_space = [0,0,0,0]
         self._curr_step = 0
