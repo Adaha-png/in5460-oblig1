@@ -232,7 +232,7 @@ class Microgrid(object):
         return None
 
 
-def env(gym.Env):
+class env(gym.env):
     def __init__(self, microgrid = Microgrid()):
         super.__init__(self)
         self.microgrid = microgrid
