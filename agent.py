@@ -1,3 +1,5 @@
+import numpy as np
+
 cutin_windspeed =3*3.6
 #the cut -in windspeed (km/h =1/3.6 m/s), v^ci#
 cutoff_windspeed =11*3.6
@@ -65,6 +67,8 @@ number_generators =1
 rated_output_power_generator =600/1000
 #the rated output power of the generator ( MegaWatt =1000 kW), G_p#
 
+unit_reward_soldbackenergy = 0.2
+Delta_t = 1
 class Microgrid(object):
     def __init__(self,
             workingstatus =[0 ,0 ,0], #the working status of [ solar PV , wind turbine , generator]

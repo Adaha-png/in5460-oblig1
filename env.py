@@ -26,35 +26,25 @@ data_rate_consumption_charge = pd.read_csv(file_rateConsumptionCharge)
 rate_consumption_charge = np.array(data_rate_consumption_charge.iloc[:,4])/10
 # rate of consumption charge measured by 10^4 $/ MegaWatt =10 $/kWh
 
-class env(gym.env):
+class environment(gym.Env):
     def __init__(self, microgrid = Microgrid()):
-        super.__init__(self)
         self.microgrid = microgrid
-        self.action_space = {
-            "adjustingstatus": [0,0,0],
-            "solar": [0,0,0],
-            "wind": [0,0,0],
-            "generator": [0,0,0],
-            "purchased": [0,0],
-            "discharged": 0
-        }
-        self.observation_space = [0,0,0,0]
+        self.action_space = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+        self.observation_space = np.array([0,0,0,0])
         self._curr_step = 0
         self._curr_ep = 0
 
     def reset(self):
         self.microgrid = Microgrid()
-        self.action_space = {
-            "adjustingstatus": [0,0,0],
-            "solar": [0,0,0],
-            "wind": [0,0,0],
-            "generator": [0,0,0],
-            "purchased": [0,0],
-            "discharged": 0
-        }
-        self.observation_space = [0,0,0,0]
+        self.action_space = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+        self.observation_space = np.array([0,0,0,0])
         self._curr_step = 0
         self._curr_episode = 0
+
+        obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], self.microgrid.SOC])
+        return obs
+        
+        
 
     def step(self, actions):
         print(f"Current step :{self._curr_step}. Current episode: {self._curr_ep}", end = "\r")
@@ -69,17 +59,17 @@ class env(gym.env):
             self._curr_ep += 1
             print("", end = "\n")
 
-        microgrid.actions_adjustingstatus = actions["adjustingstatus"]
-        microgrid.actions_solar = actions["solar"]
-        microgrid.actions_wind = actions["wind"]
-        microgrid.actions_generator = actions["generator"]
-        microgrid.actions_purchased = actions["purchased"]
-        microgrid.actions_discharged = actions["discharged"]
+        self.microgrid.actions_adjustingstatus = actions[0:3]
+        self.microgrid.actions_solar = actions[3:6]
+        self.microgrid.actions_wind = actions[6:9]
+        self.microgrid.actions_generator = actions[9:12]
+        self.microgrid.actions_purchased = actions[12:14]
+        self.microgrid.actions_discharged = actions[14]
 
-        microgrid.transition()
+        self.microgrid.transition()
 
-        obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], microgrid.SOC])
-        r = reward(self.microgrid, actions["purchased"]*rate_consumption_charge[self._curr_step])
+        obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], self.microgrid.SOC])
+        r = reward(self.microgrid, actions[12:14]*rate_consumption_charge[self._curr_step])
 
         return obs, r, term, trunc
 
@@ -89,3 +79,5 @@ class env(gym.env):
             not sure what the render would be
         """
         ...
+    def seed(self, sd):
+        self.sd = sd
