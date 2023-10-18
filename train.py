@@ -41,7 +41,7 @@ def train():
     eps_clip = 0.2          # clip parameter for PPO
     gamma = 0.99            # discount factor
 
-    lr_actor = 0.0003       # learning rate for actor network
+    lr_actor = 0.0006       # learning rate for actor network
     lr_critic = 0.001       # learning rate for critic network
 
     random_seed = 0         # set random seed if required (0 = no random seed)
@@ -207,7 +207,7 @@ def train():
 
                 # print average reward till last episode
                 print_avg_reward = print_running_reward / print_running_episodes
-                print_avg_reward = round(print_avg_reward, 2)
+                print_avg_reward = torch.round(print_avg_reward, decimals = 2)
 
                 print("Episode : {} \t\t Timestep : {} \t\t Average Reward : {}".format(i_episode, time_step, print_avg_reward))
 
