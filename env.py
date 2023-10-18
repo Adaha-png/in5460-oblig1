@@ -69,7 +69,7 @@ class environment(gym.Env):
         self.microgrid.transition()
 
         obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], self.microgrid.SOC])
-        r = reward(self.microgrid, actions[12:14]*rate_consumption_charge[self._curr_step])
+        r = reward(self.microgrid, np.sum(actions[12:14])*rate_consumption_charge[self._curr_step])
 
         return obs, r, term, trunc
 
