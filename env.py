@@ -36,18 +36,20 @@ class environment(gym.Env):
     def __init__(self, microgrid = Microgrid()):
         self.microgrid = microgrid
         self.action_space = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
-        self.observation_space = np.array([0,0,0,0,0,0,0])
+        self.observation_space = np.array([0,0,0,0,0,0,0,0])
         self._curr_step = 0
         self._curr_ep = 0
+        self.energyLoad = energyLoad[self._curr_step]*households
 
     def reset(self):
         self.microgrid = Microgrid()
         self.action_space = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
-        self.observation_space = np.array([0,0,0,0,0,0,0])
+        self.observation_space = np.array([0,0,0,0,0,0,0,0])
         self._curr_step = 0
         self._curr_episode = 0
+        self.energyLoad = energyLoad[self._curr_step]*households
 
-        obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], self.microgrid.SOC, *self.microgrid.workingstatus])
+        obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], self.microgrid.SOC, *self.microgrid.workingstatus, self.energyLoad])
         return obs
         
         
@@ -73,7 +75,7 @@ class environment(gym.Env):
         self.microgrid.transition()
 
         self.energyLoad = energyLoad[self._curr_step]*households
-        obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], self.microgrid.SOC, *self.microgrid.workingstatus])
+        obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], self.microgrid.SOC, *self.microgrid.workingstatus, self.energyLoad])
         r = reward(self.microgrid, np.sum(actions[12:14])*rate_consumption_charge[self._curr_step],self.energyLoad, actions[12])
 
         return obs, r, term, trunc
