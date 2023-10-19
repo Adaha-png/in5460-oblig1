@@ -92,8 +92,14 @@ class Microgrid(object):
         self.actions_discharged = actions_discharged
         self.solarirradiance = solarirradiance
         self.windspeed = windspeed
+        self.solarLog = []
+        self.windLog = []
+        self.generatorLog = []
 
     def transition(self):
+        self.solarLog.append(self.energy_generated_solar)
+        self.windLog.append(self.energy_generated_wind)
+        self.generatorLog(self.energy_generated_generator)
         workingstatus = self.workingstatus
         SOC = self.SOC
 
