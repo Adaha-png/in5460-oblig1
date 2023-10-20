@@ -71,6 +71,9 @@ unit_reward_soldbackenergy = 0.2
 Delta_t = 1
 class Microgrid(object):
     def __init__(self,
+            solar,
+            wind,
+            generator,
             workingstatus =[0 ,0 ,0], #the working status of [ solar PV , wind turbine , generator]
             SOC =0, #the state of charge of the battery system
             actions_adjustingstatus =[0 ,0 ,0], #the actions of adjusting the working status ( connected=1 or not =0 to the load ) of the [solar , wind , generator ]
@@ -95,16 +98,19 @@ class Microgrid(object):
         self.solarLog = []
         self.windLog = []
         self.generatorLog = []
+        self.wind = wind
+        self.solar = solar
+        self.generator = generator
 
     def transition(self):
-        self.solarLog.append(self.energy_generated_solar)
-        self.windLog.append(self.energy_generated_wind)
-        self.generatorLog(self.energy_generated_generator)
+        self.solarLog.append(self.energy_generated_solar())
+        self.windLog.append(self.energy_generated_wind())
+        self.generatorLog.append(self.energy_generated_generator())
         workingstatus = self.workingstatus
         SOC = self.SOC
 
         if self.actions_adjustingstatus[0]==1:
-            workingstatus[0]=1
+            workingstatus[0]=self.solar
         else:
             workingstatus[0]=0
             # determining the next decision epoch working status of solar PV , 1= working , 0= not working
@@ -112,11 +118,11 @@ class Microgrid(object):
             workingstatus[1]=0
         else :
             if self.actions_adjustingstatus[1]==1 and self.windspeed <= cutoff_windspeed and self.windspeed >= cutin_windspeed :
-                workingstatus[1]=1
+                workingstatus[1]=self.wind
             # determining the next decision epoch working status of wind turbine , 1= working , 0= not working
 
         if self.actions_adjustingstatus[2]==1:
-            workingstatus[2]=1
+            workingstatus[2]=self.generator
         else:
             workingstatus[2]=0
             #determining the next decision epoch working status of generator , 1= working , 0= not working

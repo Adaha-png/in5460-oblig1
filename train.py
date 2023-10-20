@@ -2,6 +2,7 @@ import os
 import glob
 import time
 from env import environment
+import argparse
 from datetime import datetime
 
 import torch
@@ -12,7 +13,7 @@ import gym
 from PPO import PPO
 
 ################################### Training ###################################
-def train():
+def train(num, households, solar, wind, generator):
     print("============================================================================================")
 
     ####### initialize environment hyperparameters ######
@@ -48,7 +49,7 @@ def train():
     #####################################################
 
 
-    env = environment()
+    env = environment(households, solar, wind, generator)
 
     # state space dimension
     state_dim = env.observation_space.shape[0]
@@ -71,7 +72,7 @@ def train():
           os.makedirs(log_dir)
 
     #### get number of log files in log directory
-    run_num = 0
+    run_num = num
     current_num_files = next(os.walk(log_dir))[2]
     run_num = len(current_num_files)
 
@@ -247,12 +248,23 @@ def train():
     print("============================================================================================")
 
 
-if __name__ == '__main__':
+    
+    
+def parse_args():
+    """Parse command line argument."""
 
-    train()
-    
-    
-    
+    parser = argparse.ArgumentParser("Load demand prediction")
+    parser.add_argument("-n", "--number", help="Path to saved model number")
+    parser.add_argument("-H", "--households", help="amount of households")
+    parser.add_argument("-s", "--solar", help="Path to saved model number")
+    parser.add_argument("-w", "--wind", help="Path to saved model number")
+    parser.add_argument("-g", "--generator", help="Path to saved model number")
+
+    return parser.parse_args()
+
+if __name__ == '__main__':
+    args = parse_args()
+    train(int(args.number), int(args.households), int(args.solar), int(args.wind), int(args.generator))
     
     
     

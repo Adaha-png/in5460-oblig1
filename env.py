@@ -18,7 +18,6 @@ file_energyLoad = "USA_BASE.csv"
 
 data_energyLoad = pd.read_csv(file_energyLoad)
 energyLoad = np.array(data_energyLoad.iloc[:,9])
-households = 1
 # read the solar irradiace
 data_solar = pd.read_csv(file_SolarIrradiance)
 solarirradiance = np.array(data_solar.iloc[:,3])
@@ -33,21 +32,26 @@ rate_consumption_charge = np.array(data_rate_consumption_charge.iloc[:,4])/10
 # rate of consumption charge measured by 10^4 $/ MegaWatt =10 $/kWh
 
 class environment(gym.Env):
-    def __init__(self, microgrid = Microgrid()):
-        self.microgrid = microgrid
+    def __init__(self, households, solar, wind, generator):
+        self.microgrid = Microgrid(solar,wind,generator)
         self.action_space = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
         self.observation_space = np.array([0,0,0,0,0,0,0,0])
         self._curr_step = 0
         self._curr_ep = 0
-        self.energyLoad = energyLoad[self._curr_step]*households
+        print(households)
+        self.households = households
+        self.energyLoad = energyLoad[self._curr_step]*self.households
+        self.solar = solar
+        self.wind = wind
+        self.generator = generator    
 
     def reset(self):
-        self.microgrid = Microgrid()
+        self.microgrid = Microgrid(self.solar, self.wind, self.generator)
         self.action_space = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
         self.observation_space = np.array([0,0,0,0,0,0,0,0])
         self._curr_step = 0
         self._curr_episode = 0
-        self.energyLoad = energyLoad[self._curr_step]*households
+        self.energyLoad = energyLoad[self._curr_step]*self.households
 
         obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], self.microgrid.SOC, *self.microgrid.workingstatus, self.energyLoad])
         return obs
@@ -74,9 +78,9 @@ class environment(gym.Env):
 
         self.microgrid.transition()
 
-        self.energyLoad = energyLoad[self._curr_step]*households
+        self.energyLoad = energyLoad[self._curr_step]*self.households
         obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], self.microgrid.SOC, *self.microgrid.workingstatus, self.energyLoad])
-        r = reward(self.microgrid, np.sum(actions[12:14])*rate_consumption_charge[self._curr_step],self.energyLoad, actions[12])
+        r = reward(self.microgrid, np.sum(actions[12:14])*rate_consumption_charge[self._curr_step],self.energyLoad, actions[12], self.households)
 
         return obs, r, term, trunc
 
