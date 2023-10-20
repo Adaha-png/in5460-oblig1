@@ -80,7 +80,8 @@ class environment(gym.Env):
 
         self.energyLoad = energyLoad[self._curr_step]*self.households
         obs = np.array([solarirradiance[self._curr_step], windspeed[self._curr_step], rate_consumption_charge[self._curr_step], self.microgrid.SOC, *self.microgrid.workingstatus, self.energyLoad])
-        r = reward(self.microgrid, np.sum(actions[12:14])*rate_consumption_charge[self._curr_step],self.energyLoad, actions[12], self.households)
+        purchased = np.sum(actions[12:14])**2*0.25*rate_consumption_charge[self._curr_step] + np.sum(actions[12:14])**2*0.5*rate_consumption_charge[self._curr_step]
+        r = reward(self.microgrid, purchased,self.energyLoad, actions[12], self.households)
 
         return obs, r, term, trunc
 

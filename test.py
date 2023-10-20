@@ -6,14 +6,15 @@ from datetime import datetime
 import torch
 import numpy as np
 
+from env import environment
 import gym
 import roboschool
 
 from PPO import PPO
-
+import plot
 
 #################################### Testing ###################################
-def test():
+def test(num, household, solar, wind, generator):
     print("============================================================================================")
 
     ################## hyperparameters ##################
@@ -33,7 +34,7 @@ def test():
     # max_ep_len = 1500           # max timesteps in one episode
     # action_std = 0.1            # set same std for action distribution which was used while saving
 
-    env_name = "RoboschoolWalker2d-v1"
+    env_name = "microgrid_env"
     has_continuous_action_space = True
     max_ep_len = 1000           # max timesteps in one episode
     action_std = 0.1            # set same std for action distribution which was used while saving
@@ -41,18 +42,18 @@ def test():
     render = True              # render environment on screen
     frame_delay = 0             # if required; add delay b/w frames
 
-    total_test_episodes = 10    # total num of testing episodes
+    total_test_episodes = 1   # total num of testing episodes
 
     K_epochs = 80               # update policy for K epochs
     eps_clip = 0.2              # clip parameter for PPO
     gamma = 0.99                # discount factor
 
-    lr_actor = 0.0003           # learning rate for actor
+    lr_actor = 0.001         # learning rate for actor
     lr_critic = 0.001           # learning rate for critic
 
     #####################################################
 
-    env = gym.make(env_name)
+    env = environment(households, solar, wind, generator)
 
     # state space dimension
     state_dim = env.observation_space.shape[0]
@@ -69,7 +70,7 @@ def test():
     # preTrained weights directory
 
     random_seed = 0             #### set this to load a particular checkpoint trained on random seed
-    run_num_pretrained = 0      #### set this to load a particular checkpoint num
+    run_num_pretrained = num      #### set this to load a particular checkpoint num
 
     directory = "PPO_preTrained" + '/' + env_name + '/'
     checkpoint_path = directory + "PPO_{}_{}_{}.pth".format(env_name, random_seed, run_num_pretrained)
@@ -104,6 +105,13 @@ def test():
         print('Episode: {} \t\t Reward: {}'.format(ep, round(ep_reward, 2)))
         ep_reward = 0
 
+
+    if generator:
+        plot.plotGeneration(env.microgrid.solarLog[0:8000], np.arange(8000))
+    elif wind:
+        plot.plotWind(env.microgrid.solarLog[0:8000], np.arange(8000))
+    else:
+        plot.plotSolar(env.microgrid.solarLog[0:8000], np.arange(8000))
     env.close()
 
     print("============================================================================================")
@@ -114,7 +122,19 @@ def test():
 
     print("============================================================================================")
 
+def parse_args():
+    """Parse command line argument."""
+
+    parser = argparse.ArgumentParser("Load demand prediction")
+    parser.add_argument("-n", "--number", help="Path to saved model number")
+    parser.add_argument("-H", "--households", help="amount of households")
+    parser.add_argument("-s", "--solar", help="Path to saved model number")
+    parser.add_argument("-w", "--wind", help="Path to saved model number")
+    parser.add_argument("-g", "--generator", help="Path to saved model number")
+
+    return parser.parse_args()
 
 if __name__ == '__main__':
+    args = parse_args()
+    test(int(args.number), int(args.households), int(args.solar), int(args.wind), int(args.generator))
 
-    test()
