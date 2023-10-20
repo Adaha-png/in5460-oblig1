@@ -8,13 +8,12 @@ import numpy as np
 
 from env import environment
 import gym
-import roboschool
-
+import argparse
 from PPO import PPO
 import plot
 
 #################################### Testing ###################################
-def test(num, household, solar, wind, generator):
+def test(num, households, solar, wind, generator):
     print("============================================================================================")
 
     ################## hyperparameters ##################
@@ -36,7 +35,7 @@ def test(num, household, solar, wind, generator):
 
     env_name = "microgrid_env"
     has_continuous_action_space = True
-    max_ep_len = 1000           # max timesteps in one episode
+    max_ep_len = 8639           # max timesteps in one episode
     action_std = 0.1            # set same std for action distribution which was used while saving
 
     render = True              # render environment on screen
@@ -102,16 +101,16 @@ def test(num, household, solar, wind, generator):
         ppo_agent.buffer.clear()
 
         test_running_reward +=  ep_reward
-        print('Episode: {} \t\t Reward: {}'.format(ep, round(ep_reward, 2)))
+        print('Episode: {} \t\t Reward: {}'.format(ep, torch.round(ep_reward, decimals = 2)))
         ep_reward = 0
 
 
     if generator:
-        plot.plotGeneration(env.microgrid.solarLog[0:8000], np.arange(8000))
+        plot.plotGeneration(env.microgrid.solarLog, env.microgrid.windLog, env.microgrid.generatorLog, np.arange(8639))
     elif wind:
-        plot.plotWind(env.microgrid.solarLog[0:8000], np.arange(8000))
+        plot.plotSolarWind(env.microgrid.solarLog, env.microgrid.windLog, np.arange(8639))
     else:
-        plot.plotSolar(env.microgrid.solarLog[0:8000], np.arange(8000))
+        plot.plotSolar(env.microgrid.solarLog, np.arange(8639))
     env.close()
 
     print("============================================================================================")
